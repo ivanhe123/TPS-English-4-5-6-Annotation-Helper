@@ -1,5 +1,5 @@
 {
-  "name": "AI Annotation Guide",
-  "description": "An intelligent annotation tool that uses AI to transcribe text from documents and provides a user-friendly interface for highlighting, adding symbols, and taking notes, inspired by effective manual annotation methods.",
+  "name": "Static Annotation Guide",
+  "description": "A powerful tool for annotating text and visualizing connections as a mind graph. Save and load sessions locally. Runs entirely in the browser and is perfect for static hosting.",
   "requestFramePermissions": []
 }

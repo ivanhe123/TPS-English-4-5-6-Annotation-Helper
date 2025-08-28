@@ -13,7 +13,6 @@ interface AnnotationSidebarProps {
     onAnnotationSelect: (id: string | null) => void;
     onNoteChange: (id: string, note: string) => void;
     onDelete: (id: string) => void;
-    isStreaming: boolean;
     // Connection props
     connectionState: { from: string | null; type: string | null };
     connectionTypes: ConnectionType[];
@@ -120,7 +119,6 @@ export const AnnotationSidebar: React.FC<AnnotationSidebarProps> = ({
     onAnnotationSelect,
     onNoteChange,
     onDelete,
-    isStreaming,
     connectionState,
     connectionTypes,
     onCancelConnection,
@@ -135,9 +133,6 @@ export const AnnotationSidebar: React.FC<AnnotationSidebarProps> = ({
     const activeAnnotation = annotations.find(ann => ann.id === activeAnnotationId);
     
     const getStatusMessage = () => {
-        if (isStreaming) {
-            return { text: 'Transcription in progress...', className: 'bg-blue-100 text-blue-800' };
-        }
         if (connectionState.from) {
              return { text: 'Select annotation to connect', className: 'bg-blue-100 text-blue-800 animate-pulse' };
         }
@@ -148,7 +143,7 @@ export const AnnotationSidebar: React.FC<AnnotationSidebarProps> = ({
     };
 
     const status = getStatusMessage();
-    const isDisabled = !selectionActive || isStreaming || !!connectionState.from;
+    const isDisabled = !selectionActive || !!connectionState.from;
 
     return (
         <div className="sticky top-24">

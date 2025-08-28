@@ -1,7 +1,6 @@
 import React, { useMemo, useState, useRef } from 'react';
 import type { Annotation, SelectionRange, AnnotationType, AnnotationValue, ConnectionType } from '../types';
 import { AnnotationColor, AnnotationSymbol } from '../types';
-import { LoadingSpinner } from './Icons';
 import type { QuickToolbarState, AnnotationActionToolbarState } from '../App';
 
 interface TextDisplayProps {
@@ -10,7 +9,6 @@ interface TextDisplayProps {
     onTextSelect: (range: SelectionRange | null, rect: DOMRect | null) => void;
     activeAnnotationId: string | null;
     onAnnotationClick: (id: string, element: HTMLElement) => void;
-    isLoading: boolean;
     hoveredAnnotationId: string | null;
     onAnnotationHoverChange: (id: string | null) => void;
     quickToolbar: QuickToolbarState | null;
@@ -111,7 +109,6 @@ export const TextDisplay: React.FC<TextDisplayProps> = ({
     onTextSelect, 
     activeAnnotationId, 
     onAnnotationClick, 
-    isLoading,
     hoveredAnnotationId,
     onAnnotationHoverChange,
     quickToolbar,
@@ -258,16 +255,6 @@ export const TextDisplay: React.FC<TextDisplayProps> = ({
         }).filter(Boolean);
 
     }, [text, annotations, activeAnnotationId, onAnnotationClick, onAnnotationHoverChange, isConnecting, connectionState.from]);
-    
-    if (isLoading && !text) {
-        return (
-            <div className="bg-white p-6 sm:p-8 rounded-xl shadow-lg border border-gray-200 flex flex-col items-center justify-center min-h-[300px]">
-                <LoadingSpinner />
-                <p className="mt-4 text-lg text-[#28533E]">Transcription in progress...</p>
-                <p className="text-sm text-gray-500">Text will appear here in real-time.</p>
-            </div>
-        );
-    }
 
     return (
         <div ref={containerRef} className="relative bg-white p-6 sm:p-8 rounded-xl shadow-lg border border-gray-200">

@@ -1,11 +1,10 @@
 import React, { useState, useCallback, useEffect, useRef } from 'react';
-import { FileUpload } from './components/FileUpload';
+import { TextEntry } from './components/TextEntry';
 import { TextDisplay } from './components/TextDisplay';
 import { AnnotationSidebar } from './components/AnnotationSidebar';
 import { MindGraphView } from './components/MindGraphView';
-import { extractTextFromImage } from './services/geminiService';
 import type { Annotation, AnnotationType, AnnotationValue, SelectionRange, Connection, ConnectionType } from './types';
-import { LoadingSpinner, ErrorIcon, BrainIcon } from './components/Icons';
+import { ErrorIcon, BrainIcon } from './components/Icons';
 
 export interface QuickToolbarState {
     top: number;
@@ -20,11 +19,9 @@ export interface AnnotationActionToolbarState {
 }
 
 const App: React.FC = () => {
-    const [file, setFile] = useState<File | null>(null);
     const [extractedText, setExtractedText] = useState<string>('');
     const [annotations, setAnnotations] = useState<Annotation[]>([]);
     const [selection, setSelection] = useState<SelectionRange | null>(null);
-    const [isLoading, setIsLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
     const [activeAnnotationId, setActiveAnnotationId] = useState<string | null>(null);
     const [hoveredAnnotationId, setHoveredAnnotationId] = useState<string | null>(null);
@@ -38,26 +35,16 @@ const App: React.FC = () => {
         { id: 'ct-settings', label: 'settings' },
         { id: 'ct-description', label: 'description' },
         { id: 'ct-relationship', label: 'relationship' },
+        { id: 'ct-cause', label: 'cause' },
+        { id: 'ct-effect', label: 'effect' },
     ]);
     const [connectionState, setConnectionState] = useState<{ from: string | null; type: string | null }>({ from: null, type: null });
     const [showMindGraph, setShowMindGraph] = useState<boolean>(false);
 
 
-    const handleFileSelect = async (selectedFile: File) => {
-        setFile(selectedFile);
-        resetState(false); // Soft reset
-        setIsLoading(true);
-        try {
-            await extractTextFromImage(selectedFile, (chunk) => {
-                setExtractedText(prev => prev + chunk);
-            });
-        } catch (err) {
-            console.error(err);
-            setError('Failed to extract text from the file. Please try another image.');
-            setExtractedText(''); // Clear partial text on error
-        } finally {
-            setIsLoading(false);
-        }
+    const handleTextSubmit = (text: string) => {
+        resetState(false);
+        setExtractedText(text);
     };
     
     const onTextSelect = useCallback((range: SelectionRange | null, rect: DOMRect | null) => {
@@ -210,8 +197,7 @@ const App: React.FC = () => {
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        const fileName = file?.name.split('.')[0] || 'annotations';
-        a.download = `${fileName}-session.json`;
+        a.download = `annotations-session.json`;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
@@ -233,11 +219,12 @@ const App: React.FC = () => {
                         setAnnotations(data.annotations.sort((a:Annotation, b:Annotation) => a.start - b.start));
                         setConnections(data.connections || []);
                         setConnectionTypes(data.connectionTypes || [
-                            { id: 'ct-settings', label: 'settings' },
+                             { id: 'ct-settings', label: 'settings' },
                             { id: 'ct-description', label: 'description' },
                             { id: 'ct-relationship', label: 'relationship' },
+                            { id: 'ct-cause', label: 'cause' },
+                            { id: 'ct-effect', label: 'effect' },
                         ]);
-                        setFile(null);
                     } else {
                         throw new Error("Invalid annotation file format.");
                     }
@@ -253,13 +240,11 @@ const App: React.FC = () => {
 
     const resetState = (fullReset = true) => {
         if (fullReset) {
-            setFile(null);
+            setExtractedText('');
         }
-        setExtractedText('');
         setAnnotations([]);
         setConnections([]);
         setSelection(null);
-        setIsLoading(false);
         setError(null);
         setActiveAnnotationId(null);
         setQuickToolbar(null);
@@ -268,14 +253,14 @@ const App: React.FC = () => {
         setConnectionState({from: null, type: null});
     };
     
-    const showFileUpload = !file && !extractedText && !error;
-    const showMainView = (file || extractedText) && !error;
+    const showTextEntry = !extractedText && !error;
+    const showMainView = extractedText && !error;
 
     return (
         <div className="bg-[#F8F9FA] min-h-screen text-[#212529]">
             <header className="bg-white shadow-sm sticky top-0 z-20">
                 <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-3 flex justify-between items-center">
-                    <h1 className="text-3xl font-handwritten text-[#28533E] font-bold">Guide to Annotation AI</h1>
+                    <h1 className="text-3xl font-handwritten text-[#28533E] font-bold">Annotation Guide</h1>
                     <div className="flex items-center space-x-4">
                         {showMainView && (
                              <button 
@@ -287,7 +272,7 @@ const App: React.FC = () => {
                                 <span>{showMindGraph ? "Text View" : "Mind Graph"}</span>
                             </button>
                         )}
-                        {(file || extractedText || error) && (
+                        {(extractedText || error) && (
                             <button 
                                 onClick={() => resetState(true)}
                                 className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-colors text-sm font-semibold shadow"
@@ -300,8 +285,8 @@ const App: React.FC = () => {
             </header>
             
             <main ref={mainContainerRef} className="container mx-auto p-4 sm:p-6 lg:p-8">
-                {showFileUpload && (
-                    <FileUpload onFileSelect={handleFileSelect} onLoadRequest={handleLoadAnnotations} />
+                {showTextEntry && (
+                    <TextEntry onTextSubmit={handleTextSubmit} onLoadRequest={handleLoadAnnotations} />
                 )}
 
                 {error && (
@@ -331,13 +316,11 @@ const App: React.FC = () => {
                                 onTextSelect={onTextSelect}
                                 activeAnnotationId={activeAnnotationId}
                                 onAnnotationClick={handleAnnotationClick}
-                                isLoading={isLoading}
                                 hoveredAnnotationId={hoveredAnnotationId}
                                 onAnnotationHoverChange={setHoveredAnnotationId}
                                 quickToolbar={quickToolbar}
                                 onAddAnnotation={handleAddAnnotation}
                                 connectionState={connectionState}
-                                // New props for action toolbar
                                 annotationActionToolbar={annotationActionToolbar}
                                 connectionTypes={connectionTypes}
                                 onStartConnection={handleStartConnection}
@@ -354,8 +337,6 @@ const App: React.FC = () => {
                                 onAnnotationSelect={setActiveAnnotationId}
                                 onNoteChange={handleUpdateAnnotationNote}
                                 onDelete={handleDeleteAnnotation}
-                                isStreaming={isLoading}
-                                // Connection Props
                                 connectionState={connectionState}
                                 connectionTypes={connectionTypes}
                                 onCancelConnection={handleCancelConnection}

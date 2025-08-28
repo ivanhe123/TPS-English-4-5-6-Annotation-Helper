@@ -31,7 +31,7 @@ const fileToGenerativePart = (file: File): Promise<{ inlineData: { data: string,
 export const extractTextFromImage = async (file: File, onStreamUpdate: (chunk: string) => void): Promise<void> => {
     try {
         const imagePart = await fileToGenerativePart(file);
-        const textPart = { text: "Transcribe the text in the attachement. Ignor the page count and illustrations." };
+        const textPart = { text: "Transcribe the text in the attachement. Do not use any markdown formatting. Ignore the page count and illustrations." };
 
         const responseStream = await ai.models.generateContentStream({
             model: 'gemini-2.5-flash',
