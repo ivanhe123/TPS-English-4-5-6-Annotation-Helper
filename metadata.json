@@ -1,0 +1,5 @@
+{
+  "name": "AI Annotation Guide",
+  "description": "An intelligent annotation tool that uses AI to transcribe text from documents and provides a user-friendly interface for highlighting, adding symbols, and taking notes, inspired by effective manual annotation methods.",
+  "requestFramePermissions": []
+}
