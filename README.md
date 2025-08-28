@@ -12,17 +12,6 @@ This is a static-ready version of the AI Annotation Guide, designed to be hosted
 - **Session Management**: Save your entire session (text, annotations, and connections) to a JSON file and load it back in later.
 - **Static & Portable**: No backend or build process required. Runs entirely in the browser.
 
-## How to Deploy on GitHub Pages
-
-1.  **Create a Repository**: Create a new public repository on GitHub.
-2.  **Upload Files**: Upload all the files from this project (the `docs` folder, `metadata.json`, and this `README.md`) to your new repository.
-3.  **Enable GitHub Pages**:
-    *   In your repository, go to `Settings` > `Pages`.
-    *   Under "Build and deployment", set the `Source` to **Deploy from a branch**.
-    *   Set the `Branch` to `main` (or whichever branch you are using) and the folder to `/docs`.
-    *   Click `Save`.
-4.  **Done!**: Your site will be live at `https://<your-username>.github.io/<your-repo-name>/` in a few minutes.
-
 ## How to Use the Application
 
 1.  **Enter Text**: Open the live URL. You will see a large text area. Paste or type the text you want to annotate and click "Start Annotating".
